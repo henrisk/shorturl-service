@@ -18,12 +18,12 @@ public interface URLRepository extends CrudRepository<URLEntity, Long> {
 
 	URLEntity findFirstByUrl(final String shortUrl);
 
-	@Query("SELECT new br.com.linx.shorturl.domain.vo.URLStatsVO(SUM(url.hit), COUNT(url.url)) FROM URLEntity url")
+	@Query("SELECT new br.com.nextel.shorturl.domain.vo.URLStatsVO(SUM(url.hit), COUNT(url.url)) FROM URLEntity url")
 	URLStatsVO getURLStats();
 
 	List<URLEntity> findTop10ByOrderByHitDesc();
 
-	@Query("SELECT new br.com.linx.shorturl.domain.vo.URLStatsVO(SUM(url.hit), COUNT(url.url)) FROM URLEntity url WHERE url.user.id = :userId")
+	@Query("SELECT new br.com.nextel.shorturl.domain.vo.URLStatsVO(SUM(url.hit), COUNT(url.url)) FROM URLEntity url WHERE url.user.id = :userId")
 	URLStatsVO getURLStatsByUser(@Param("userId") final Long userId);
 
 	@Query("SELECT url FROM URLEntity url WHERE url.user.id = :userId ORDER BY url.hit")
