@@ -3,6 +3,7 @@ package br.com.nextel.shorturl.service.impl;
 import br.com.nextel.shorturl.domain.entity.UserEntity;
 import br.com.nextel.shorturl.domain.repository.UserRepository;
 import br.com.nextel.shorturl.domain.vo.UserVO;
+import br.com.nextel.shorturl.exception.BusinessException;
 import br.com.nextel.shorturl.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,14 +31,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserVO add(final UserVO vo) {
-		Optional<UserEntity> user = userRepository.findById(vo.getId());
-		if(! user.isPresent()) {
-			user = Optional.of(vo.toEntity());
-			return UserVO.fromEntity(userRepository.save(user.get()));
-		}
-
-		return null;
+	public UserEntity add(final UserVO vo) throws BusinessException {
+		Optional<UserEntity> user = userRepository.findByName(vo.getName());
+		if (user.isPresent()) {
+		    throw new BusinessException("Usuário com nome '" + vo.getName() + "' já existe");
+        }
+        return userRepository.save(vo.toEntity());
 	}
 
 	@Override

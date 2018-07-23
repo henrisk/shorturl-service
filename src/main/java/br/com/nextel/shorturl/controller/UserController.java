@@ -1,7 +1,9 @@
 package br.com.nextel.shorturl.controller;
 
+import br.com.nextel.shorturl.domain.entity.UserEntity;
 import br.com.nextel.shorturl.domain.vo.URLStatsVO;
 import br.com.nextel.shorturl.domain.vo.UserVO;
+import br.com.nextel.shorturl.exception.BusinessException;
 import br.com.nextel.shorturl.service.URLService;
 import br.com.nextel.shorturl.service.UserService;
 import io.swagger.annotations.Api;
@@ -34,7 +36,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "URL Statistics by user"),
             @ApiResponse(code = 404, message = "If userId is unknown")
     })
-    public ResponseEntity<URLStatsVO> getStats (HttpServletRequest request, @PathVariable("userId") final Long userId) {
+    public ResponseEntity<URLStatsVO> getStats(HttpServletRequest request, @PathVariable("userId") final Long userId) {
         final String serverURL = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         if (!userService.isExistingUser(userId))
             return new ResponseEntity<>(new URLStatsVO(), HttpStatus.NOT_FOUND);
@@ -48,13 +50,13 @@ public class UserController {
             @ApiResponse(code = 201, message = "User created"),
             @ApiResponse(code = 409, message = "User already exists")
     })
-    public ResponseEntity<UserVO> add (@RequestBody final UserVO user) {
-        UserVO result = userService.add(user);
-        if (result == null) {
-            return new ResponseEntity<>(new UserVO(), HttpStatus.CONFLICT);
+    public ResponseEntity<String> add(@RequestBody final UserVO user) {
+        try {
+            userService.add(user);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } catch (BusinessException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
-
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/user/{userId}")
@@ -62,7 +64,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Operation successful executed")
     })
-    public void del (@PathVariable("userId") Long id) {
+    public void del(@PathVariable("userId") Long id) {
         userService.remove(id);
     }
 }
